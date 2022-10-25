@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ContactNoticeMapper">
+
+	<update id="update" parameterType="kr.co.ictedu.contact.notice.ContactNoticeDTO">
+	update contactnotice
+	set title = #{title}, contents = #{contents}
+	where board_no = #{board_no}
+	and mno = #{mno}
+	</update>
+
+	<delete id="delete" parameterType="kr.co.ictedu.contact.notice.ContactNoticeDTO">
+	delete from contactnotice
+	where board_no = #{board_no}
+	and mno = #{mno}
+	</delete>
+
+	<update id="incrementViewCnt" parameterType="java.lang.String">
+	update contactnotice
+	set view_cnt = view_cnt + 1
+	where board_no = #{board_no}
+	</update>
+
+	<select id="detail" parameterType="java.lang.String" resultType="kr.co.ictedu.contact.notice.ContactNoticeDTO">
+	select cn.board_no, cn.title, cn.mno, m.mid, cn.contents, cn.view_cnt, cn.write_date
+	from contactnotice cn, member m
+	where cn.board_no = #{board_no}
+	and cn.mno = m.mno
+	</select>
+
+	<insert id="write" parameterType="kr.co.ictedu.contact.notice.ContactNoticeDTO">
+	insert into contactnotice ( title, mno, contents, view_cnt, write_date )
+	values ( #{title}, #{mno}, #{contents}, 0, now() )
+	</insert>
+
+	<select id="selectList" parameterType="kr.co.ictedu.util.dto.SearchDTO"
+			resultType="kr.co.ictedu.contact.notice.ContactNoticeDTO">
+		select cn.board_no, cn.title, cn.mno, m.mid, cn.view_cnt, cn.write_date
+		from contactnotice cn, member m
+		where cn.mno = m.mno
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord != ''">
+			<choose>
+				<when test="searchOption == 'title'">
+					and cn.title like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'mno'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+		order by cn.board_no desc
+		limit #{limitNum}, 10
+	</select>
+
+	<select id="searchListCount" parameterType="kr.co.ictedu.util.dto.SearchDTO" resultType="int">
+		select count(cn.board_no) cnt
+		from contactnotice cn, member m
+		where cn.mno = m.mno
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'title'">
+					and cn.title like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'mno'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+	</select>
+
+</mapper>

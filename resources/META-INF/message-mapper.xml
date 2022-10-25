@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MessageMapper">
+
+
+
+    <delete id="deleteChat" parameterType="kr.co.ictedu.message.MessageDTO">
+	delete from send_memo_chat
+	where room = #{room}
+	</delete>
+
+    <delete id="delete" parameterType="kr.co.ictedu.message.MessageDTO">
+	delete from send_memo_room
+	where room = #{room}
+	</delete>
+
+    
+    
+	<select id="chatList" parameterType="kr.co.ictedu.message.MessageDTO" 
+	                      resultType="kr.co.ictedu.message.MessageDTO">
+    select memo, room, send_mno, recv_mno, send_time, content, read_chk
+		, m.mid send_mid, m.mid
+		, m2.mid recv_mid, m2.mid
+    from send_memo_chat chat, member m, member m2
+    where room = #{room}
+	and chat.send_mno = m.mno
+	and chat.recv_mno = m2.mno
+    </select>
+    
+    
+ 
+	<!-- 메세지리스트에서 메세지 보내기 -->
+	<insert id="chat" parameterType="kr.co.ictedu.message.MessageDTO">
+	 insert into send_memo_chat ( room, send_mno, recv_mno, send_time, content)
+	 values ( #{room}, #{send_mno}, #{recv_mno}, now(), #{content})
+	</insert>
+
+	<insert id="makeMemoRoom" parameterType="kr.co.ictedu.message.MessageDTO">
+	insert into send_memo_room (send_mno,recv_mno)
+	values ( #{send_mno}, (select mno from member where mid = #{recv_mid}))
+	</insert>
+
+	<select id="selectList" parameterType="kr.co.ictedu.util.dto.SearchDTO"
+	                        resultType="kr.co.ictedu.message.MessageDTO">
+		select smr.room, smr.send_mno, smr.recv_mno, smr.send_leave_date, smr.recv_leave_date, smr.send_leave_yn, smr.recv_leave_yn
+		, m.mid send_mid, m.mid
+		, m2.mid recv_mid, m2.mid
+		from send_memo_room smr, member m, member m2
+		where ( smr.send_mno = #{mno} or smr.recv_mno = #{mno} )
+		and smr.send_mno = m.mno
+		and smr.recv_mno = m2.mno
+		order by smr.room desc
+		limit #{limitNum}, 10
+	</select>
+
+	<select id="searchListCount" parameterType="kr.co.ictedu.util.dto.SearchDTO" resultType="int">
+		select count(smr.room) cnt
+		from send_memo_room smr, member m, member m2
+		where ( smr.send_mno = #{mno} or smr.recv_mno = #{mno} )
+		and smr.send_mno = m.mno
+		and smr.recv_mno = m2.mno
+	</select>
+
+</mapper>

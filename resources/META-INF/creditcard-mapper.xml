@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CreditCardMapper">
+
+	<update id="delete" parameterType="kr.co.ictedu.credit.card.CreditCardDTO">
+	update credit_card
+	set del_yn = 1, del_date = now()
+	where card_no = #{card_no}
+	and mno = #{mno}
+	</update>
+
+	<insert id="insert" parameterType="kr.co.ictedu.credit.card.CreditCardDTO">
+	insert into credit_card ( card_name, mno, card_number, expiry_date_month, expiry_date_year,
+								cvc_code, pwd, used_date, reg_date )
+	values ( #{card_name}, #{mno}, #{card_number}, #{expiry_date_month}, #{expiry_date_year},
+				#{cvc_code}, #{pwd}, now(), now() )
+	</insert>
+
+	<select id="list"  parameterType="java.lang.String"
+						resultType="kr.co.ictedu.credit.card.CreditCardDTO">
+	select cc.card_no, cc.card_name, cc.mno
+			, concat(left(cc.card_number, 5), '****-****', right(cc.card_number, 5)) card_number
+			, cc.expiry_date_month, cc.expiry_date_year
+			, cc.cvc_code, cc.pwd, cc.used_date, cc.reg_date
+	from credit_card cc, member m
+	where cc.mno = #{mno}
+	and cc.del_yn = 0
+	and cc.mno = m.mno
+	order by cc.used_date desc
+	</select>
+
+</mapper>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ContactFaqMapper">
+
+	<update id="update" parameterType="kr.co.ictedu.contact.faq.ContactFaqDTO">
+	update contactfaq
+	set title = #{title}, contents = #{contents}
+	where board_no = #{board_no}
+	and mno = #{mno}
+	</update>
+
+	<delete id="delete" parameterType="kr.co.ictedu.contact.faq.ContactFaqDTO">
+	delete from contactfaq
+	where board_no = #{board_no}
+	and mno = #{mno}
+	</delete>
+
+	<update id="incrementViewCnt" parameterType="java.lang.String">
+	update contactfaq
+	set view_cnt = view_cnt + 1
+	where board_no = #{board_no}
+	</update>
+
+	<select id="detail" parameterType="java.lang.String" resultType="kr.co.ictedu.contact.faq.ContactFaqDTO">
+	select cf.board_no, cf.title, cf.mno, m.mid, cf.contents, cf.view_cnt, cf.write_date
+	from contactfaq cf, member m
+	where cf.board_no = #{board_no}
+	and cf.mno = m.mno
+	</select>
+
+	<insert id="write" parameterType="kr.co.ictedu.contact.faq.ContactFaqDTO">
+	insert into contactfaq ( title, mno, contents, view_cnt, write_date )
+	values ( #{title}, #{mno}, #{contents}, 0, now() )
+	</insert>
+
+	<select id="selectList" parameterType="kr.co.ictedu.util.dto.SearchDTO"
+			resultType="kr.co.ictedu.contact.faq.ContactFaqDTO">
+		select cf.board_no, cf.title, cf.mno, m.mid, cf.view_cnt, cf.write_date
+		from contactfaq cf, member m
+		where cf.mno = m.mno
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord != ''">
+			<choose>
+				<when test="searchOption == 'title'">
+					and cf.title like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'mno'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+		order by cf.board_no desc
+		limit #{limitNum}, 10
+	</select>
+
+	<select id="searchListCount" parameterType="kr.co.ictedu.util.dto.SearchDTO" resultType="int">
+		select count(cf.board_no) cnt
+		from contactfaq cf, member m
+		where cf.mno = m.mno
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'title'">
+					and cf.title like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'mno'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+	</select>
+
+</mapper>

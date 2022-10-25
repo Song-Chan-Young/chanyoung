@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="HistoryMapper">
+
+	<select id="sellDetail" parameterType="kr.co.ictedu.history.HistoryDTO" resultType="kr.co.ictedu.history.HistoryDTO">
+	SELECT om.order_no, om.mno, m.mid, om.card_no
+			, om.order_product_cnt, om.order_amt, om.pay_amt
+			, om.order_date, om.order_status
+            , coco.code_name order_status_name
+			, od.detail_no, od.prdt_no
+			, od.detail_qty, od.detail_price, od.detail_amt
+			, od.detail_pay_amt
+			, g.prdt_name, g.mno as seller_mno, m2.mid as seller_mid
+			, g.thumbnail_name, g.thumbnail_path
+			, cc.card_name, cc.card_number
+	FROM order_detail od, getshare g
+		, order_main om, credit_card cc
+		, member m, member m2, common_code coco
+	where od.detail_no = #{detail_no}
+	and g.mno = #{mno}
+	and g.mno = m2.mno
+	and g.prdt_no = od.prdt_no
+	and od.order_no = om.order_no
+	and om.mno = m.mno
+	and om.card_no = cc.card_no
+	and coco.code_class = 'order_status'
+	and om.order_status = coco.code_no
+	</select>
+
+	<select id="searchSellList" parameterType="kr.co.ictedu.util.dto.SearchDTO" resultType="kr.co.ictedu.history.HistoryDTO">
+	SELECT om.order_no, om.mno, m.mid, om.card_no
+			, om.order_product_cnt, om.order_amt, om.pay_amt
+			, om.order_date, om.order_status
+			, coco.code_name order_status_name
+			, od.detail_no, od.prdt_no
+			, od.detail_qty, od.detail_price, od.detail_amt
+			, od.detail_pay_amt
+			, g.prdt_name, g.mno as seller_mno, m2.mid as seller_mid
+			, g.thumbnail_name, g.thumbnail_path
+			, cc.card_name, cc.card_number
+	FROM order_detail od, getshare g
+		, order_main om, credit_card cc
+		, member m, member m2, common_code coco
+	where g.mno = #{mno}
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'prdt_name'">
+					and g.prdt_name like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'seller_mid'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+	and g.mno = m2.mno
+	and g.prdt_no = od.prdt_no
+	and od.order_no = om.order_no
+	and om.mno = m.mno
+	and om.card_no = cc.card_no
+	and coco.code_class = 'order_status'
+	and om.order_status = coco.code_no
+	order by od.order_no desc
+	limit #{limitNum}, 10
+	</select>
+
+	<select id="searchSellListCount" parameterType="kr.co.ictedu.util.dto.SearchDTO" resultType="int">
+	SELECT count(od.detail_no) cnt
+	FROM order_detail od, getshare g
+		, order_main om, credit_card cc
+		, member m, member m2, common_code coco
+	where g.mno = #{mno}
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'prdt_name'">
+					and g.prdt_name like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'seller_mid'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+	and g.mno = m2.mno
+	and g.prdt_no = od.prdt_no
+	and od.order_no = om.order_no
+	and om.mno = m.mno
+	and om.card_no = cc.card_no
+	and coco.code_class = 'order_status'
+	and om.order_status = coco.code_no
+	</select>
+
+	<select id="payDetail" parameterType="kr.co.ictedu.history.HistoryDTO" resultType="kr.co.ictedu.history.HistoryDTO">
+	SELECT om.order_no, om.mno, m.mid, om.card_no
+			, om.order_product_cnt, om.order_amt, om.pay_amt
+			, om.order_date, om.order_status
+            , coco.code_name order_status_name
+			, od.detail_no, od.prdt_no
+			, od.detail_qty, od.detail_price, od.detail_amt
+			, od.detail_pay_amt
+			, g.prdt_name, g.mno as seller_mno, m2.mid as seller_mid
+			, g.thumbnail_name, g.thumbnail_path
+			, cc.card_name, cc.card_number
+	FROM order_main om, order_detail od, getshare g, credit_card cc, member m, member m2
+		, common_code coco
+	where om.order_no = #{order_no}
+	and om.mno = #{mno}
+	and om.mno = m.mno
+	and om.order_no = od.order_no
+	and od.prdt_no = g.prdt_no
+	and g.mno = m2.mno
+	and om.card_no = cc.card_no
+	and coco.code_class = 'order_status'
+	and om.order_status = coco.code_no
+	order by od.detail_no desc
+	</select>
+	
+	
+
+	<select id="searchOrderList" parameterType="kr.co.ictedu.util.dto.SearchDTO" resultType="kr.co.ictedu.history.HistoryDTO">
+	SELECT om.order_no, om.mno, m.mid, om.card_no
+			, om.order_product_cnt, om.order_amt, om.pay_amt
+			, om.order_date, om.order_status
+            , coco.code_name order_status_name
+			, od.detail_no, od.prdt_no
+			, od.detail_qty, od.detail_price, od.detail_amt
+			, od.detail_pay_amt
+			, g.prdt_name, g.mno as seller_mno, m2.mid as seller_mid
+			, g.thumbnail_name, g.thumbnail_path
+			, cc.card_name, cc.card_number
+	FROM order_main om, order_detail od, getshare g, credit_card cc, member m, member m2
+		, common_code coco
+	where om.mno = #{mno}
+	
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'prdt_name'">
+					and g.prdt_name like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'mid'">
+					and m2.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+	and om.mno = m.mno
+	and om.order_no = od.order_no
+	and od.prdt_no = g.prdt_no
+	and g.mno = m2.mno
+	and om.card_no = cc.card_no
+	and coco.code_class = 'order_status'
+	and om.order_status = coco.code_no
+	order by om.order_no desc
+	limit #{limitNum}, 10
+	</select>
+
+	<select id="searchOrderListCount" parameterType="kr.co.ictedu.util.dto.SearchDTO" resultType="int">
+	SELECT count(om.order_no) cnt
+	FROM order_main om, order_detail od, getshare g, credit_card cc, member m, member m2
+		, common_code coco
+	where om.mno = #{mno}
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'prdt_name'">
+					and g.prdt_name like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'seller_mid'">
+					and m2.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+	and om.mno = m.mno
+	and om.order_no = od.order_no
+	and od.prdt_no = g.prdt_no
+	and g.mno = m2.mno
+	and om.card_no = cc.card_no
+	and coco.code_class = 'order_status'
+	and om.order_status = coco.code_no
+	</select>
+
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CartMapper">
+
+	<update id="updateBuyQty" parameterType="kr.co.ictedu.getshare.GetShareDTO">
+	update cart
+	set buy_qty = #{buy_qty}
+	where cart_no = #{cart_no}
+	and mno = #{mno}
+	</update>
+
+	<delete id="delete" parameterType="kr.co.ictedu.getshare.GetShareDTO">
+	delete from cart
+	where cart_no = #{cart_no}
+	</delete>
+
+	<select id="list" parameterType="java.lang.String" resultType="kr.co.ictedu.getshare.GetShareDTO">
+	select c.cart_no, c.mno, m.mid, c.prdt_no, c.buy_qty, c.reg_date
+			, g.prdt_no, g.prdt_name, g.mno, m2.mid, g.qty, g.price
+			, ( g.price ) * c.buy_qty total_price
+			, g.description, g.view_cnt, g.reg_date
+			, g.thumbnail_name, g.thumbnail_path, g.prdt_img_name, g.prdt_img_path
+	from cart c, member m, getshare g, member m2
+	where c.mno = #{mno}
+	and c.mno = m.mno
+	and c.prdt_no = g.prdt_no
+	and g.mno = m2.mno
+	order by c.reg_date desc
+	</select>
+
+	<insert id="insert" parameterType="kr.co.ictedu.getshare.GetShareDTO">
+	insert into cart (mno , prdt_no, buy_qty, reg_date)
+	values(#{mno}, #{prdt_no}, #{buy_qty}, now())
+	</insert>
+
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MypageMapper">
+    
+    
+    
+    <update id="update" parameterType="kr.co.ictedu.util.dto.MemberDTO">
+	update member
+	set mid = #{mid}, mpwd = #{mpwd}, tel = #{tel}, email = #{email}, post_code = #{post_code}, addr1 = #{addr1}, addr2 = #{addr2} 
+	where mno = #{mno}
+	</update>
+	
+
+
+	<select id="detail" parameterType="java.lang.String" resultType="kr.co.ictedu.util.dto.MemberDTO">
+	select mno, mid, mpwd, tel, email, addr1
+	from member 
+	where mno = #{mno}
+	</select>
+
+
+</mapper>

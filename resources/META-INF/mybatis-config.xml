@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+	PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	
+	<mappers>
+	<mapper resource="META-INF/message-mapper.xml" />
+	<mapper resource="META-INF/login-mapper.xml" />
+	<mapper resource="META-INF/join-mapper.xml" />
+	<mapper resource="META-INF/contactnotice-mapper.xml" />
+	<mapper resource="META-INF/contactfaq-mapper.xml" />
+	<mapper resource="META-INF/getshare-mapper.xml" />
+	<mapper resource="META-INF/cart-mapper.xml" />
+	<mapper resource="META-INF/creditcard-mapper.xml" />
+	<mapper resource="META-INF/order-mapper.xml" />
+	<mapper resource="META-INF/history-mapper.xml" />
+	<mapper resource="META-INF/message-mapper.xml" />
+	<mapper resource="META-INF/mypage-mapper.xml" />
+	</mappers>
+
+</configuration>

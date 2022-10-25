@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="GetShareMapper">
+
+	<update id="fileDelete" parameterType="kr.co.ictedu.getshare.GetShareDTO">
+	update getshare
+		<if test="thumbnail_name != null and thumbnail_name != ''">
+			set thumbnail_name = ''
+			, thumbnail_path = ''
+		</if>
+		<if test="prdt_img_name != null and prdt_img_name != ''">
+			set prdt_img_name = ''
+			, prdt_img_path = ''
+		</if>
+	where prdt_no = #{prdt_no}
+	and mno = #{mno}
+	</update>
+
+	<update id="update" parameterType="kr.co.ictedu.getshare.GetShareDTO">
+	update getshare
+	set prdt_name = #{prdt_name}
+		, qty = #{qty}
+		, price = #{price}
+		, description = #{description}
+		<if test="thumbnail_name != null and thumbnail_name != ''">
+			, thumbnail_name = #{thumbnail_name}
+			, thumbnail_path = #{thumbnail_path}
+		</if>
+		<if test="prdt_img_name != null and prdt_img_name != ''">
+			, prdt_img_name = #{prdt_img_name}
+			, prdt_img_path = #{prdt_img_path}
+		</if>
+	where prdt_no = #{prdt_no}
+	and mno = #{mno}
+	</update>
+
+	<update id="delete" parameterType="kr.co.ictedu.getshare.GetShareDTO">
+	update getshare
+	set del_yn = 1
+	, del_date = now()
+	where prdt_no = #{prdt_no}
+	and mno = #{mno}
+	</update>
+
+	<update id="incrementViewCnt" parameterType="java.lang.String">
+	update getshare
+	set view_cnt = view_cnt + 1
+	where prdt_no = #{prdt_no}
+	</update>
+
+	<select id="detail" parameterType="java.lang.String" resultType="kr.co.ictedu.getshare.GetShareDTO">
+	select g.prdt_no, g.prdt_name, g.page_list, g.prdt_gubun, g.mno, m.mid, g.qty, g.price
+	, g.description, g.expir_date, g.price_suggest, g.view_cnt, g.reg_date
+	, g.thumbnail_name, g.thumbnail_path, g.prdt_img_name, g.prdt_img_path
+   	from getshare g, member m
+	where g.prdt_no = #{prdt_no}
+	and del_yn = 0
+	and g.mno = m.mno
+	</select>
+
+	<select id="selectList" parameterType="kr.co.ictedu.util.dto.SearchDTO"
+			resultType="kr.co.ictedu.getshare.GetShareDTO">
+		select g.prdt_no, g.prdt_name, g.mno, g.page_list, g.prdt_gubun, m.mid, g.qty, g.price
+		, g.description, g.view_cnt, g.reg_date, g.expir_date, g.price_suggest
+		, g.thumbnail_name, g.thumbnail_path, g.prdt_img_name, g.prdt_img_path
+    	from getshare g, member m
+		where del_yn = 0
+		and page_list = #{page_list}
+		and prdt_gubun = #{prdt_gubun}
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'prdt_name'">
+					and g.prdt_name like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'mid'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+		and g.mno = m.mno
+		order by prdt_no desc
+		limit #{limitNum}, 10
+	</select>
+
+	<select id="searchListCount" parameterType="kr.co.ictedu.util.dto.SearchDTO" resultType="int">
+		select count(g.prdt_no) cnt
+		from getshare g, member m
+		where del_yn = 0
+		and page_list = #{page_list}
+		and prdt_gubun = #{prdt_gubun}
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'prdt_name'">
+					and g.prdt_name like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'mid'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+		and g.mno = m.mno
+	</select>
+	
+	<select id="searchListByMainPage" parameterType="kr.co.ictedu.util.dto.SearchDTO"
+			resultType="kr.co.ictedu.getshare.GetShareDTO">
+		select g.prdt_no, g.prdt_name, g.mno, g.page_list, g.prdt_gubun, m.mid, g.qty, g.price
+		, g.description, g.view_cnt, g.reg_date, g.expir_date, g.price_suggest
+		, g.thumbnail_name, g.thumbnail_path, g.prdt_img_name, g.prdt_img_path
+    	from getshare g, member m
+		where del_yn = 0
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'prdt_name'">
+					and g.prdt_name like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'mid'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+		and g.mno = m.mno
+		order by prdt_no desc
+		limit #{limitNum}, 10
+	</select>
+
+	<select id="searchListCountByMainPage" parameterType="kr.co.ictedu.util.dto.SearchDTO" resultType="int">
+		select count(g.prdt_no) cnt
+		from getshare g, member m
+		where del_yn = 0
+		<if test="searchOption != null and searchOption != ''
+					and searchWord != null and searchWord !=''">
+			<choose>
+				<when test="searchOption == 'prdt_name'">
+					and g.prdt_name like concat('%', #{searchWord}, '%')
+				</when>
+				<when test="searchOption == 'mid'">
+					and m.mid like concat('%', #{searchWord}, '%')
+				</when>
+			</choose>
+		</if>
+		and g.mno = m.mno
+	</select>
+
+	<insert id="insert" parameterType="kr.co.ictedu.getshare.GetShareDTO">
+	insert into getshare (page_list, prdt_gubun, prdt_name, mno , qty, price, description, reg_date, expir_date
+						, price_suggest, thumbnail_name, thumbnail_path, prdt_img_name, prdt_img_path)
+	values(#{page_list}, #{prdt_gubun}, #{prdt_name}, #{mno} , #{qty}, #{price}, #{description}, now(), #{expir_date}
+						, #{price_suggest}, #{thumbnail_name}, #{thumbnail_path}, #{prdt_img_name}, #{prdt_img_path})
+	</insert>
+
+</mapper>

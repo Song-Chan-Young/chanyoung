@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="OrderMapper">
+
+		<update id="updateCreditCardUsedDate" parameterType="kr.co.ictedu.order.OrderMainDTO">
+	update credit_card
+	set used_date = now()
+	where card_no = #{card_no}
+	and mno = #{mno}
+	</update>
+
+	<delete id="deleteCartByArray">
+	delete from cart c
+	where c.cart_no in
+		<foreach item="cart_no" collection="array" open="(" close=")" separator=",">
+			#{cart_no}
+		</foreach>
+	</delete>
+
+	<insert id="insertBuyNowOrderDetail" parameterType="kr.co.ictedu.order.OrderMainDTO">
+	insert into order_detail (order_no, prdt_no
+							, detail_qty, detail_price
+							, detail_amt
+							, detail_pay_amt)
+	select #{order_no}, g.prdt_no
+			, #{buy_now_qty}, g.price
+			, #{buy_now_qty} * g.price
+			, #{buy_now_qty} * g.price
+	from getshare g
+	where g.prdt_no = #{buy_now_prdt_no}
+	</insert>
+
+	<insert id="insertOrderDetail" parameterType="kr.co.ictedu.order.OrderMainDTO">
+	insert into order_detail (order_no, prdt_no
+							, detail_qty, detail_price
+							, detail_amt
+							, detail_pay_amt)
+	select #{order_no}, g.prdt_no
+			, c.buy_qty, g.price
+			, c.buy_qty * g.price
+			, c.buy_qty * g.price 
+	from cart c, getshare g
+	where c.cart_no in
+		<foreach item="cart_no" collection="arr_cart_no" open="(" close=")" separator=",">
+			#{cart_no}
+		</foreach>
+	and c.prdt_no = g.prdt_no
+	order by c.reg_date
+	</insert>
+
+	<insert id="insertOrderMain" parameterType="kr.co.ictedu.order.OrderMainDTO">
+		insert into order_main (mno, card_no, order_product_cnt
+								, order_amt, pay_amt, order_date)
+		values (#{mno}, #{card_no}, #{order_product_cnt}
+				, #{order_amt}, #{pay_amt}, now());
+		<selectKey resultType="String" keyProperty="order_no" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<select id="buyNowOrderList" resultType="kr.co.ictedu.getshare.GetShareDTO">
+	select 0.cart_no, #{buy_qty} as buy_qty, now()
+			, g.prdt_no, g.prdt_name, g.mno, m.mid, g.qty, g.price
+			, g.price * #{buy_qty} as total_price
+			, g.description, g.view_cnt, g.reg_date
+			, g.thumbnail_name, g.thumbnail_path, g.prdt_img_name, g.prdt_img_path
+	from getshare g, member m
+	where g.prdt_no = #{prdt_no}
+	and g.mno = m.mno
+	</select>
+
+	<select id="orderList" resultType="kr.co.ictedu.getshare.GetShareDTO">
+	select c.cart_no, c.mno, m.mid, c.prdt_no, c.buy_qty, c.reg_date
+			, g.prdt_no, g.prdt_name, g.mno, m2.mid, g.qty, g.price
+			,  g.price   * c.buy_qty total_price
+			, g.description, g.view_cnt, g.reg_date
+			, g.thumbnail_name, g.thumbnail_path, g.prdt_img_name, g.prdt_img_path
+	from cart c, member m, getshare g, member m2
+	where c.cart_no in
+		<foreach item="cart_no" collection="array" open="(" close=")" separator=",">
+			#{cart_no}
+		</foreach>
+	and c.mno = m.mno
+	and c.prdt_no = g.prdt_no
+	and g.mno = m2.mno
+	order by c.reg_date desc
+	</select>
+
+</mapper>
